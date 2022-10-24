@@ -7,6 +7,8 @@ By Dan Porter, PhD
 Diamond Light Source Ltd.
 2022
 
+![GUI Window](https://github.com/DanPorter/i16_scan_generator/blob/master/i16_scan_generator.png?raw=true)
+
 #### Usage:
 Start the GUI from a terminal
 ```text
