@@ -516,12 +516,13 @@ class Theta2ThetaScan:
             self.update_function = update_function
         geometries = ['Vertical', 'Horizontal']
         self.geometry = tk.StringVar(parent, geometries[0])
-        self.tth_start = tk.StringVar(parent, 0)
-        self.tth_stop = tk.StringVar(parent, 1)
+        self.tth_start = tk.StringVar(parent, 6)
+        self.tth_stop = tk.StringVar(parent, 20)
         self.tth_step = tk.StringVar(parent, 0.1)
-        self.tth_nsteps = tk.StringVar(parent, 11)
-        self.tth_range = tk.StringVar(parent, 1)
-        self.th_start = tk.StringVar(parent, 0)
+        self.tth_nsteps = tk.StringVar(parent, 141)
+        self.tth_range = tk.StringVar(parent, 14)
+        self.th_start = tk.StringVar(parent, 3)
+        self.th_offset = tk.StringVar(parent, 0)
 
         frm = ttk.Frame(parent)
         frm.pack(side=tk.TOP, expand=tk.YES, fill=tk.BOTH)
@@ -571,9 +572,15 @@ class Theta2ThetaScan:
         self.thfrm.pack(side=tk.TOP, expand=tk.YES, fill=tk.BOTH)
         var = ttk.Label(self.thfrm, text='Start:', font=SF)
         var.pack(side=tk.LEFT, padx=4)
-        var = tk.Entry(self.thfrm, textvariable=self.tth_start, font=TF, width=6, bg=ety, fg=ety_txt)
+        var = tk.Entry(self.thfrm, textvariable=self.th_start, font=TF, width=6, bg=ety, fg=ety_txt)
         var.bind('<Return>', self.ety_theta_start)
         var.bind('<KP_Enter>', self.ety_theta_start)
+        var.pack(side=tk.LEFT, padx=4)
+        var = ttk.Label(self.thfrm, text='Offset:', font=SF)
+        var.pack(side=tk.LEFT, padx=4)
+        var = tk.Entry(self.thfrm, textvariable=self.th_offset, font=TF, width=6, bg=ety, fg=ety_txt)
+        var.bind('<Return>', self.ety_theta_offset)
+        var.bind('<KP_Enter>', self.ety_theta_offset)
         var.pack(side=tk.LEFT, padx=4)
 
     def command(self):
@@ -592,7 +599,7 @@ class Theta2ThetaScan:
         step = self.tth_step.get()
         nsteps = self.tth_nsteps.get()
         srange = self.tth_range.get()
-        theta = self.th_start.get()
+        offset = self.th_offset.get()
 
         inputs = {
             'start': eval(start),
@@ -603,13 +610,15 @@ class Theta2ThetaScan:
         }
 
         start, stop, step, nsteps, srange = scan_range(**inputs)
-        theta = start / 2 if theta == '' else theta
+        offset = 0 if offset == '' else eval(offset)
+        theta = offset+(start / 2)
         self.tth_start.set(strfmt(start))
         self.tth_stop.set(strfmt(stop))
         self.tth_step.set(strfmt(step))
         self.tth_nsteps.set(strfmt(nsteps))
         self.tth_range.set(strfmt(srange))
         self.th_start.set(theta)
+        self.th_offset.set(offset)
         self.update_function()
 
     def opt_geometry(self, event=None):
@@ -639,6 +648,13 @@ class Theta2ThetaScan:
         self.get_sss()
 
     def ety_theta_start(self, event=None):
+        tth_start = eval(self.tth_start.get())
+        th_start = eval(self.th_start.get())
+        offset = th_start - (tth_start/2)
+        self.th_offset.set(offset)
+        self.get_sss()
+
+    def ety_theta_offset(self, event=None):
         self.get_sss()
 
 
@@ -807,12 +823,12 @@ class TwoDimScan:
         self.scan_step = tk.StringVar(parent, 0.1)
         self.scan_nsteps = tk.StringVar(parent, 11)
         self.scan_range = tk.StringVar(parent, 1)
-        self.scannable2 = tk.StringVar(parent, 'x')
-        self.scan_start2 = tk.StringVar(parent, 0)
+        self.scannable2 = tk.StringVar(parent, 'y')
+        self.scan_start2 = tk.StringVar(parent, -1)
         self.scan_stop2 = tk.StringVar(parent, 1)
         self.scan_step2 = tk.StringVar(parent, 0.1)
-        self.scan_nsteps2 = tk.StringVar(parent, 11)
-        self.scan_range2 = tk.StringVar(parent, 1)
+        self.scan_nsteps2 = tk.StringVar(parent, 21)
+        self.scan_range2 = tk.StringVar(parent, 2)
 
         frm = ttk.LabelFrame(parent, text='Fast axis')
         frm.pack(side=tk.TOP, expand=tk.YES, fill=tk.BOTH)

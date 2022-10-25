@@ -53,7 +53,7 @@ def scan_range(start, stop=None, step=None, nsteps=None, srange=None):
     start = np.asarray(start)
     if stop is None:
         if srange is None:
-            srange = np.asarray(step) * int(nsteps)
+            srange = np.asarray(step) * (int(nsteps)-1)
         stop = start + srange
     srange = stop - start
 
@@ -61,7 +61,7 @@ def scan_range(start, stop=None, step=None, nsteps=None, srange=None):
         step = srange / (nsteps - 1)
     # nsteps = len(np.arange(start, stop+step, step))
     with np.errstate(divide='ignore', invalid='ignore'):
-        nsteps = int(np.nanmax((stop - start + step) // step))
+        nsteps = int(np.nanmax(np.round((stop - start + step) / step)))
     return start, stop, step, nsteps, srange
 
 
@@ -92,7 +92,7 @@ def scancn(scannable, step, nsteps):
 
 def cscan(scannable, step, srange):
     """Centred scan (range)"""
-    return scangen('cscan', srange / 2, step)
+    return scangen('cscan', scannable, srange / 2, step)
 
 
 def scan2d(scannable1, start1, stop1, step1, scannable2, start2, stop2, step2):
