@@ -1,3 +1,4 @@
+# This Python code is encode in: utf-8
 """
 tkinter GUI for i16_scan_generator
 
@@ -1337,11 +1338,17 @@ class ScanGenerator:
             activeBackground=opt_active,
             activeForeground=txtcol
         )
-        ttk.Style().configure(  # configure "tabs" background color
+        style = ttk.Style()
+        style.configure(
+            ".",
+            background=bkg,
+        )
+        style.configure(  # configure "tabs" background color
             "TNotebook.Tab",
             font=BF,
             padding=[5, 10],
             justify='center',
+            background=bkg,
         )
         # ttk.Style().configure('.', font=BF)
 
@@ -1422,7 +1429,7 @@ class ScanGenerator:
 
         if self.parent is not None:
             var = tk.Button(frm, text='INSERT', font=BF, width=10, command=self.insert_command,
-                            bg=btn, activebackground=btn_active)
+                            bg='gold', activebackground=btn_active, fg='black')
             var.pack(side=tk.LEFT, fill=tk.Y, padx=4)
 
         "-------------------------Start Mainloop------------------------------"
