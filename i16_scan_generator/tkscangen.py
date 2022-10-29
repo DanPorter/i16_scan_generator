@@ -1,4 +1,4 @@
-# This Python code is encode in: utf-8
+# This Python code is encoded in: utf-8
 """
 tkinter GUI for i16_scan_generator
 
@@ -9,11 +9,13 @@ Diamond Light Source Ltd
 import re
 import tkinter as tk
 from tkinter import ttk
+import datetime
 
 from i16_scan_generator.params import SCANNABLES, DETECTORS, EDGES, SCANOPTIONS
 from i16_scan_generator.scandef import scannable_desc, det_desc, energy_desc, scan, scan_range, strfmt, scancn, \
     centred_scan_range, cscan, theta2theta_horiz, theta2theta_vert, energy_pol, energy, scan2d, psi_scancn, psi, \
     detector, detector_rois, detector_name
+from i16_scan_generator.timing import scan_command_time, time_string
 
 TF = ["Times", 12]  # entry
 BF = ["Times", 14]  # Buttons
@@ -268,6 +270,7 @@ class AbsoluteScan:
         start = eval(self.scan_start.get())
         stop = eval(self.scan_stop.get())
         step = eval(self.scan_step.get())
+        _, _, _, nsteps, srange = scan_range(start, stop, step)
         return scan(scannable, start, stop, step)
 
     def get_sss(self):
@@ -1355,6 +1358,7 @@ class ScanGenerator:
         # Variables
         self.detector = tk.StringVar(self.root, 'pil')
         self.exposure = tk.DoubleVar(self.root, 1)
+        self.time = tk.StringVar(self.root, '')
         self.command = tk.StringVar(self.root, '')
 
         "----------- TOP Scan Tabs -----------"
@@ -1414,6 +1418,15 @@ class ScanGenerator:
 
         self.options = ScanOptions(frm, self.generate_command)
 
+        "----------- Bottom Time box -----------"
+        frm = ttk.Frame(self.root)
+        frm.pack(side=tk.TOP, expand=tk.YES, fill=tk.Y)
+
+        var = ttk.Label(frm, text='Time:', font=SF)
+        var.pack(side=tk.LEFT, padx=4)
+        var = ttk.Label(frm, textvariable=self.time, font=SF)
+        var.pack(side=tk.LEFT, padx=4)
+
         "----------- Bottom Edit box -----------"
         frm = ttk.Frame(self.root)
         frm.pack(side=tk.TOP, expand=tk.YES, fill=tk.Y)
@@ -1423,6 +1436,8 @@ class ScanGenerator:
         var.pack(side=tk.LEFT, fill=tk.Y, padx=2, pady=6)
         var = tk.Entry(frm, textvariable=self.command, width=60, font=TF, bg=ety, fg=ety_txt)
         var.pack(side=tk.LEFT, ipady=5)
+        var.bind('<Return>', self.ety_command)
+        var.bind('<KP_Enter>', self.ety_command)
         var = tk.Button(frm, text='COPY', font=BF, width=5, height=1, command=self.copy_command,
                         bg=ety, fg='grey', activebackground=btn_active)
         var.pack(side=tk.LEFT, padx=0)
@@ -1476,6 +1491,13 @@ class ScanGenerator:
             if roi not in opts:
                 self.options.lst_options.insert(tk.END, roi)
 
+    def ety_command(self):
+        """Update scan time"""
+        cmd = self.command.get()
+        time, npoints = scan_command_time(cmd)
+        s = time_string(time)
+        self.time.set('%s (%s points)' % (s, npoints))
+
     def generate_command(self):
         """Generate command"""
         # Get scan tab
@@ -1485,6 +1507,7 @@ class ScanGenerator:
         options_command = self.options.command()
         cmd = ' '.join([scan_command, detector_command, options_command])
         self.command.set(cmd)
+        self.ety_command()
 
     def copy_command(self):
         """copy string to clipboard"""

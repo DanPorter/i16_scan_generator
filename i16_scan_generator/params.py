@@ -1,34 +1,83 @@
+# This Python code is encoded in: utf-8
+"""
+Parameter values for scan definitions and defaults
+
+SCANNABLES = {
+    'name': {
+        'desc': description,
+        'start': (optional) default start,
+        'stop': (optional) default stop,
+        'step': (optional) default step,
+        'speed': (optional) motor speed,
+        'stabilisation': (optional) motor stabilisation time per point,
+    }
+}
+
+DETECTORS = {
+    'name': {
+        'cmd': detector command with % format for expsosure,
+        'desc': description,
+        'exposure': (optional) default exposure,
+        'alt names': list of alternative names for detector,
+        'rois': (optional) list of available regions of interest,
+        'regex': regex command to search scan command for detector
+    }
+}
+
+SCANOPTIONS = [list of possible options to include in scan]
+
+EDGES = {dict of x-ray absorption edges with names '[element] [edge]' e.g. 'Co K'}
+
+By Dan Porter, PhD
+Diamond Light Source Ltd
+2022
+"""
 SCANNABLES = {
     'eta': {'desc': 'sample rotation parallel to beam'},
     'chi': {'desc': 'sample rotation perpendicular to beam'},
-    'phi': {'desc': 'sample rotation clockwise'},
+    'phi': {'desc': 'sample rotation clockwise', 'speed': 5, 'stabilisation': 1},
     'mu': {'desc': 'base-sample rotation anti-clockwise'},
     'delta': {'desc': 'detector rotation vertical scattering'},
     'gam': {'desc': 'detector rotation horizontal scattering'},
     'psic': {'desc': 'sample rotation about scattering vector'},
+    'th': {'desc': 'sample rotation parallel to beam (eta with offset)'},
     'hkl': {
         'desc': 'sample rotation vertical scattering',
         'start': '[1, 1, 1]',
         'stop': '[1, 1, 2]',
         'step': '[0, 0, 0.1]'
     },
-    'energy': {'desc': 'incident photon energy'},
+    'energy': {
+        'desc': 'incident photon energy',
+        'step': '0.001',
+        'speed': 0.2,
+        'stabilisation': 1,
+    },
     'spara': {'desc': 'sample motion parallel to beam'},
     'sperp': {'desc': 'sample motion perpendicular to beam'},
+    'sx': {'desc': 'sample translation x'},
+    'sy': {'desc': 'sample translation y'},
+    'sz': {'desc': 'sample height'},
+    'x': {'desc': 'dummy motor', 'speed': 1000, 'stabilisation': 0},
+    'y': {'desc': 'dummy motor', 'speed': 1000, 'stabilisation': 0},
+    'z': {'desc': 'dummy motor', 'speed': 1000, 'stabilisation': 0},
 }
+
 DETECTORS = {
     'pilatus100k': {
         'cmd': 'pil %.5g',
         'desc': 'Pilatus3 100K photon-counting area detector',
         'exposure': 1,
         'alt names': ['pil', 'pil3', 'pilatus3', 'pil100k', 'pil3100k', 'pilatus3100k'],
-        'rois': ['roi1', 'roi2', 'chiroi', 'delroi']
+        'rois': ['roi1', 'roi2', 'chiroi', 'delroi'],
+        'regex': r'pil\w*?',
     },
     'diode': {
         'cmd': 'w %.5g diode',
         'desc': 'direct beam diode',
         'exposure': 0.1,
         'alt names': [],
+        'regex': r'w',
     },
     'pilatus2m': {
         'cmd': 'pil2m %.5g',
@@ -36,19 +85,22 @@ DETECTORS = {
         'exposure': 1,
         'alt names': ['pil2m'],
         'rois': [],
+        'regex': r'pil2m\w*?',
     },
     'apd': {
         'cmd': 't %.5g',
         'desc': 'Advanced photo-diode point detector',
         'exposure': 1,
         'alt names': [],
+        'regex': r't\w*?',
     },
     'merlin': {
         'cmd': 'merlin %.5g',
         'desc': 'Merlin high resolution photon-counting area detector',
         'exposure': 1,
         'alt names': ['quadmerlin'],
-        'rois': ['mroi1', 'mroi2']
+        'rois': ['mroi1', 'mroi2'],
+        'regex': r'merlin\w*?',
     },
     'cam1': {
         'cmd': 'cam1 %.5g',
@@ -56,6 +108,7 @@ DETECTORS = {
         'exposure': 0.0001,
         'alt names': [],
         'rois': [],
+        'regex': r'cam1\w*?',
     },
     'bpm': {
         'cmd': 'bpm %.5g',
@@ -63,14 +116,18 @@ DETECTORS = {
         'exposure': 0.0001,
         'alt names': [],
         'rois': ['bpmroi1'],
+        'regex': r'bpm\w*?',
     },
 }
+
 SCANOPTIONS = [
     'checkbeam',
     'msmapper',
     'autoproc',
+    'tthmapper',
     'Tsample',
 ]
+
 EDGES = {
     'Mo L3': 2.520,
     'Bi M5': 2.580,

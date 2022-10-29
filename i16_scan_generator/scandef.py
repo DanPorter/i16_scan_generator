@@ -1,3 +1,4 @@
+# This Python code is encoded in: utf-8
 """
 Scan generator functions for beamline I16
 
@@ -45,11 +46,33 @@ def scannable_desc(name):
     return '%12s | %s' % (name, SCANNABLES[name]['desc'])
 
 
+def scannable_speed(name):
+    """returns speed, stabilisation_time for given scannable"""
+    speed = 1.0
+    stabilisation = 1.0
+    if name in SCANNABLES:
+        if 'speed' in SCANNABLES[name]:
+            speed = SCANNABLES[name]['speed']
+        if 'stabilisation' in SCANNABLES[name]:
+            stabilisation = SCANNABLES[name]['stabilisation']
+    return speed, stabilisation
+
+
 def energy_desc(name):
     return '%7s | %s keV' % (name, EDGES[name])
 
 
 def scan_range(start, stop=None, step=None, nsteps=None, srange=None):
+    """
+    Calculate scan range values given variable inputs
+      start, stop, step, nsteps, srange = scan_range(start, stop, step, nsteps, srange)
+    :param start: float : start position (required)
+    :param stop: None or float : if none, requires 2 of step, nsteps, srange
+    :param step: None or float : if none, requires 2 of stop, nsteps, srange
+    :param nsteps: None or float : if none, requires 2 of stop, step, srange
+    :param srange: None or float : if none, requires 2 of stop, step, nsteps
+    :return: start, stop, step, nsteps, srange
+    """
     start = np.asarray(start)
     if stop is None:
         if srange is None:
@@ -66,6 +89,14 @@ def scan_range(start, stop=None, step=None, nsteps=None, srange=None):
 
 
 def centred_scan_range(step=None, nsteps=None, srange=None):
+    """
+    Calculates centred scan range values, given varialbe inputs
+        step, nsteps, srange = centred_scan_range(step, nsteps, srange)
+    :param step: None or float : if none, requires nsteps, srange
+    :param nsteps: None or float : if none, requires step, srange
+    :param srange: None or float : if none, requires step, nsteps
+    :return: step, nsteps, srange
+    """
     start, stop, step, nsteps, srange = scan_range(start=0, stop=None, **locals())
     return step, nsteps, srange
 
@@ -78,6 +109,9 @@ def strfmt(value):
 def scangen(scan_type, *args, **kwargs):
     new_args = [strfmt(arg) for arg in args] + [strfmt(kwargs[arg]) for arg in kwargs]
     return ' '.join([scan_type] + new_args)
+
+
+"================== Scan Types ======================"
 
 
 def scan(scannable, start, stop, step):
